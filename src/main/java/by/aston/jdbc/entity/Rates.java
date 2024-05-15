@@ -2,7 +2,9 @@ package by.aston.jdbc.entity;
 
 
 
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 
 import java.math.BigDecimal;
 
@@ -11,13 +13,18 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @ToString
 @Builder
+@Entity
 public class Rates {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name="name", referencedColumnName="name")
+    private NameRates name;
 
-    private String name;
-
-    private String city;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinColumn(name="city", referencedColumnName="name")
+    private City city;
 
     private BigDecimal landing;
 

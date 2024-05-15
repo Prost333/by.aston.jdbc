@@ -1,9 +1,15 @@
 package by.aston.jdbc.repository;
 
-import by.aston.jdbc.connection.DatabaseConnection;
+
 import by.aston.jdbc.dto.DriveResp;
 import by.aston.jdbc.entity.Drive;
+import by.aston.jdbc.entity.User;
 import by.aston.jdbc.exeption.EntityNotFoundException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -12,178 +18,151 @@ import java.util.ArrayList;
 import java.util.List;
 @Repository
 public class DriveDao {
-    private static final String INSERT_DRIVE_SQL = "INSERT INTO drive" +
-            "  ( km, time, surge, city, rate, paid_time, door_to_door, paid_submission, dop_sum, user_id) VALUES " +
-            " (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+    @Autowired
+    private SessionFactory sessionFactory;
+    public void addDrive(Drive drive) {
+        Transaction transaction = null;
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
 
-    private static final String SELECT_DRIVE_BY_ID = "select d.km, d.time, d.surge, d.city, d.rate, d.paid_time, " +
-            "d.door_to_door, d.paid_submission, d.dop_sum, u.name " +
-            "FROM drive d " +
-            "JOIN users u ON d.user_id = u.id where d.id =?";
-    private static final String SELECT_DRIVE = "select * from drive ";
-    private static final String SELECT_ALL_DRIVE = "SELECT d.id, d.km, d.time, d.surge, d.city, d.rate, d.paid_time, \n" +
-            "d.door_to_door, d.paid_submission, d.dop_sum, u.name \n" +
-            "FROM drive d \n" +
-            "JOIN users u ON d.user_id = u.id;";
-    private static final String DELETE_DRIVE_SQL = "delete from drive where id = ?;";
-    private static final String UPDATE_DRIVE_SQL = "update drive set km = ?, time = ?, surge = ?, city = ?, rate = ?, paid_time = ?, door_to_door = ?, paid_submission = ?, dop_sum = ?, user_id = ? where id = ?;";
+            if (drive.getUser() != null) {
+                User user = session.createQuery("from User where id = :id", User.class)
+                        .setParameter("id", drive.getUser().getId())
+                        .uniqueResult();
+                if (user == null) {
+                    user = new User();
+                    user.setId(drive.getUser().getId());
+                    session.save(user);
+                }
+                drive.setUser(user);
+            }
 
-    public DriveDao() {}
+            session.save(drive);
 
-    public void addDrive(Drive drive) throws SQLException {
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_DRIVE_SQL)) {
-            preparedStatement.setBigDecimal(1, drive.getKm());
-            preparedStatement.setBigDecimal(2, drive.getTime());
-            preparedStatement.setBigDecimal(3, drive.getSurge());
-            preparedStatement.setString(4, drive.getCity());
-            preparedStatement.setString(5, drive.getRate());
-            preparedStatement.setBigDecimal(6, drive.getPaidTime());
-            preparedStatement.setInt(7, drive.getDoorToDoor());
-            preparedStatement.setBigDecimal(8, drive.getPaidSubmission());
-            preparedStatement.setBigDecimal(9, drive.getDopSum());
-            preparedStatement.setLong(10, drive.getUserId());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            printSQLException(e);
-            throw  new EntityNotFoundException("some problem");
-        }catch (EntityNotFoundException n){
-            throw  new EntityNotFoundException("some problem");
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
-    }
-
-    public boolean updateDrive(Drive drive) throws SQLException {
-        boolean rowUpdated;
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE_DRIVE_SQL);) {
-            statement.setBigDecimal(1, drive.getKm());
-            statement.setBigDecimal(2, drive.getTime());
-            statement.setBigDecimal(3, drive.getSurge());
-            statement.setString(4, drive.getCity());
-            statement.setString(5, drive.getRate());
-            statement.setBigDecimal(6, drive.getPaidTime());
-            statement.setInt(7, drive.getDoorToDoor());
-            statement.setBigDecimal(8, drive.getPaidSubmission());
-            statement.setBigDecimal(9, drive.getDopSum());
-            statement.setLong(10, drive.getUserId());
-            statement.setLong(11, drive.getId());
-            rowUpdated = statement.executeUpdate() > 0;
-        }
-        return rowUpdated;
-    }
-
-    public boolean deleteDrive(Long id) throws SQLException {
-        DriveResp drive = findById(id);
-        if (drive == null) {
-            throw new EntityNotFoundException("Drive not found");
-        }
-        boolean rowDeleted;
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(DELETE_DRIVE_SQL);) {
-            statement.setLong(1, id);
-            rowDeleted = statement.executeUpdate() > 0;
-        }
-        return rowDeleted;
     }
 
     public DriveResp findById(Long id) {
+        Session session = null;
         DriveResp drive = null;
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_DRIVE_BY_ID);) {
-            preparedStatement.setLong(1, id);
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                BigDecimal km = rs.getBigDecimal("km");
-                BigDecimal time = rs.getBigDecimal("time");
-                BigDecimal surge = rs.getBigDecimal("surge");
-                String city = rs.getString("city");
-                String rate = rs.getString("rate");
-                BigDecimal paidTime = rs.getBigDecimal("paid_time");
-                Integer DoorToDoor = rs.getInt("door_to_door");
-                BigDecimal paidSubmission = rs.getBigDecimal("paid_submission");
-                BigDecimal dopSum = rs.getBigDecimal("dop_sum");
-                String userId = rs.getString("name");
-
-                drive = new DriveResp(km, time, surge, city, rate, paidTime, DoorToDoor, paidSubmission, dopSum, userId);
+        try {
+            session = sessionFactory.openSession();
+            Query query = session.createQuery("select d.km, d.time, d.surge, d.city, d.rate, d.paidTime, " +
+                    "d.doorToDoor, d.paidSubmission, d.dopSum, u.name " +
+                    "from Drive d " +
+                    "join d.user u " +
+                    "where d.id = :id");
+            query.setParameter("id", id);
+            List<Object[]> result = query.list();
+            for (Object[] row : result) {
+                drive = new DriveResp((BigDecimal)row[0], (BigDecimal)row[1], (BigDecimal)row[2], (String)row[3],
+                        (String)row[4], (BigDecimal)row[5], (Integer)row[6], (BigDecimal)row[7],
+                        (BigDecimal)row[8], (String)row[9]);
             }
-            if (drive==null){
-                throw new EntityNotFoundException("drive not found");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();
             }
-        } catch (SQLException e) {
-            printSQLException(e);
         }
         return drive;
     }
 
     public List<Drive> findAll() {
-        List<Drive> drives = new ArrayList<>();
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(SELECT_DRIVE)) {
-
-            while (resultSet.next()) {
-                Long id = resultSet.getLong("id");
-                BigDecimal km = resultSet.getBigDecimal("km");
-                BigDecimal time = resultSet.getBigDecimal("time");
-                BigDecimal surge = resultSet.getBigDecimal("surge");
-                String city = resultSet.getString("city");
-                String rate = resultSet.getString("rate");
-                BigDecimal paidTime = resultSet.getBigDecimal("paid_time");
-                Integer DoorToDoor = resultSet.getInt("door_to_door");
-                BigDecimal paidSubmission = resultSet.getBigDecimal("paid_submission");
-                BigDecimal dopSum = resultSet.getBigDecimal("dop_sum");
-                Long userId = resultSet.getLong("user_id");
-
-                drives.add(new Drive(id, km, time, surge, city, rate, paidTime, DoorToDoor, paidSubmission, dopSum, userId));
+        Session session = null;
+        List<Drive> drives = null;
+        try {
+            session = sessionFactory.openSession();
+            drives = session.createQuery("from Drive", Drive.class).list();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();
             }
-        } catch (SQLException e) {
-            printSQLException(e);
         }
         return drives;
     }
+
+    public void updateDrive(Drive drive) {
+        Session session = null;
+        Transaction transaction = null;
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            session.update(drive);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    public void deleteDrive(Long id) {
+        Session session = null;
+        Transaction transaction = null;
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            Drive drive = session.get(Drive.class, id);
+            if (drive != null) {
+                session.delete(drive);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
     public List<DriveResp> findAllToResponse() {
         List<DriveResp> drives = new ArrayList<>();
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(SELECT_ALL_DRIVE)) {
-
-            while (resultSet.next()) {
-                Long id = resultSet.getLong("id");
-                BigDecimal km = resultSet.getBigDecimal("km");
-                BigDecimal time = resultSet.getBigDecimal("time");
-                BigDecimal surge = resultSet.getBigDecimal("surge");
-                String city = resultSet.getString("city");
-                String rate = resultSet.getString("rate");
-                BigDecimal paidTime = resultSet.getBigDecimal("paid_time");
-                Integer DoorToDoor = resultSet.getInt("door_to_door");
-                BigDecimal paidSubmission = resultSet.getBigDecimal("paid_submission");
-                BigDecimal dopSum = resultSet.getBigDecimal("dop_sum");
-               String userId = resultSet.getString("name");
-
-                drives.add(new DriveResp(km, time, surge, city, rate, paidTime, DoorToDoor, paidSubmission, dopSum,userId));
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            Query query = session.createQuery("select d.km, d.time, d.surge, d.city, d.rate, d.paidTime, " +
+                    "d.doorToDoor, d.paidSubmission, d.dopSum, u.name " +
+                    "from Drive d " +
+                    "join d.user u");
+            List<Object[]> result = query.list();
+            for (Object[] row : result) {
+                drives.add(new DriveResp((BigDecimal)row[0], (BigDecimal)row[1], (BigDecimal)row[2], (String)row[3],
+                        (String)row[4], (BigDecimal)row[5], (Integer)row[6], (BigDecimal)row[7],
+                        (BigDecimal)row[8], (String)row[9]));
             }
-        } catch (SQLException e) {
-            printSQLException(e);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
         return drives;
     }
 
-    private void printSQLException(SQLException ex) {
-        for (Throwable e: ex) {
-            if (e instanceof SQLException) {
-                e.printStackTrace(System.err);
-                System.err.println("SQLState: " + ((SQLException) e).getSQLState());
-                System.err.println("Error Code: " + ((SQLException) e).getErrorCode());
-                System.err.println("Message: " + e.getMessage());
-                Throwable t = ex.getCause();
-                while (t != null) {
-                    System.out.println("Cause: " + t);
-                    t = t.getCause();
-                }
-            }
-        }
-    }
 }

@@ -1,6 +1,7 @@
 package by.aston.jdbc.service.imp;
 
 
+import by.aston.jdbc.dto.RatesReq;
 import by.aston.jdbc.dto.RatesResp;
 import by.aston.jdbc.entity.Rates;
 import by.aston.jdbc.mapper.RatesMapper;
@@ -22,8 +23,9 @@ public class RatesServiceImp implements RatesService {
     private RatesMapper ratesMapper;
 
     @Override
-    public void save(Rates r) throws SQLException {
-        ratesDao.addRates(r);
+    public void save(RatesReq r) throws SQLException {
+        Rates rates=ratesMapper.toRequest(r);
+        ratesDao.addRates(rates);
     }
 
     @Override
@@ -33,6 +35,7 @@ public class RatesServiceImp implements RatesService {
 
     @Override
     public RatesResp findById(Long id) {
+
         return ratesMapper.toResponse(ratesDao.findById(id));
     }
 
@@ -43,5 +46,7 @@ public class RatesServiceImp implements RatesService {
                 .map(ratesMapper::toResponse)
                 .collect(Collectors.toList());
     }
+
+
 }
 

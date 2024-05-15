@@ -1,5 +1,6 @@
 package by.aston.jdbc.service.imp;
 
+import by.aston.jdbc.dto.UserReq;
 import by.aston.jdbc.dto.UserResp;
 import by.aston.jdbc.entity.User;
 import by.aston.jdbc.mapper.UserMapper;
@@ -19,8 +20,9 @@ public class UserServiceImp implements UserService {
     private UserMapper userMapper;
 
     @Override
-    public void addUser(User user) throws SQLException {
-        userDao.addUser(user);
+    public void addUser(UserReq user) throws SQLException {
+        User u=userMapper.toRequest(user);
+        userDao.addUser(u);
     }
 
     @Override
@@ -32,6 +34,7 @@ public class UserServiceImp implements UserService {
     public UserResp findById(Long id) {
         return userMapper.toResponse(userDao.findById(id));
     }
+
 
     @Override
     public List<UserResp> findAll() {

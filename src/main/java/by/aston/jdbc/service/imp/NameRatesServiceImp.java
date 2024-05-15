@@ -21,7 +21,7 @@ public class NameRatesServiceImp implements NameRatesService {
 
     @Override
     public void delete(NameRates n) throws SQLException {
-        nameRatesDao.deleteNameRates(Math.toIntExact(n.getId()));
+        nameRatesDao.deleteNameRates((long) Math.toIntExact(n.getId()));
     }
 
     @Override

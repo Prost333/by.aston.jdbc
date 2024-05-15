@@ -1,6 +1,7 @@
 package by.aston.jdbc.entity;
 
 
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 
@@ -12,27 +13,31 @@ import java.math.BigDecimal;
 @FieldNameConstants
 @ToString
 @Builder
+@Entity
 public class Drive {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private BigDecimal km;
 
-    private  BigDecimal time;
+    private BigDecimal time;
 
-    private  BigDecimal surge;
+    private BigDecimal surge;
 
-    private  String city;
+    private String city;
 
-    private  String rate;
+    private String rate;
 
     private BigDecimal paidTime;
-    private  Integer doorToDoor;
+    private Integer doorToDoor;
 
-    private  BigDecimal paidSubmission;
+    private BigDecimal paidSubmission;
 
-    private  BigDecimal dopSum;
+    private BigDecimal dopSum;
 
-    private  Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 }

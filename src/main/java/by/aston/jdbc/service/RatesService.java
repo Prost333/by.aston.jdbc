@@ -1,4 +1,5 @@
 package by.aston.jdbc.service;
+import by.aston.jdbc.dto.RatesReq;
 import by.aston.jdbc.dto.RatesResp;
 import by.aston.jdbc.entity.Rates;
 
@@ -8,7 +9,7 @@ import java.util.List;
 
 public interface RatesService {
 
-    void save(Rates r) throws SQLException;
+    void save(RatesReq r) throws SQLException;
 
     void delete(Long id) throws SQLException;
 

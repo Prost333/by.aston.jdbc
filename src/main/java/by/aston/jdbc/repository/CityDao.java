@@ -1,110 +1,113 @@
 package by.aston.jdbc.repository;
 
-import by.aston.jdbc.connection.DatabaseConnection;
+
 import by.aston.jdbc.entity.City;
 import by.aston.jdbc.exeption.EntityNotFoundException;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.List;
 @Repository
 public class CityDao {
-    private static final String INSERT_CITY_SQL = "INSERT INTO city" +
-            "  (name, country) VALUES " +
-            " (?, ?);";
+    @Autowired
+    private SessionFactory sessionFactory;
 
-    private static final String SELECT_CITY_BY_ID = "select name,country from city where id =?";
-    private static final String SELECT_ALL_CITY = "select name, country from city";
-    private static final String DELETE_CITY_SQL = "delete from city where id = ?;";
-    private static final String UPDATE_CITY_SQL = "update city set name = ?,country= ? where id = ?;";
-
-    public CityDao() {}
-
-    public void addCity(City city) throws SQLException {
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CITY_SQL)) {
-            preparedStatement.setString(1, city.getName());
-            preparedStatement.setString(2, city.getCountry());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            printSQLException(e);
-            throw  new EntityNotFoundException("some problem");
+    public void addCity(City city) {
+        Session session = null;
+        Transaction transaction = null;
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            session.save(city);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new EntityNotFoundException("some problem");
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 
-    public boolean updateCity(City city) throws SQLException {
-        boolean rowUpdated;
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE_CITY_SQL);) {
-            statement.setString(1, city.getName());
-            statement.setString(2, city.getCountry());
-            statement.setLong(3, city.getId());
-            rowUpdated = statement.executeUpdate() > 0;
+    public boolean updateCity(City city) {
+        Session session = null;
+        Transaction transaction = null;
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            session.update(city);
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new EntityNotFoundException("some problem");
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
-        return rowUpdated;
     }
 
-    public boolean deleteCity(Long id) throws SQLException {
-        boolean rowDeleted;
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(DELETE_CITY_SQL);) {
-            statement.setLong(1, id);
-            rowDeleted = statement.executeUpdate() > 0;
+    public boolean deleteCity(Long id) {
+        Session session = null;
+        Transaction transaction = null;
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            City city = session.get(City.class, id);
+            if (city != null) {
+                session.delete(city);
+                transaction.commit();
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new EntityNotFoundException("some problem");
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
-        return rowDeleted;
     }
 
     public City findById(Long id) {
-        City city = null;
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_CITY_BY_ID);) {
-            preparedStatement.setLong(1, id);
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                String name = rs.getString("name");
-                String country = rs.getString("country");
-                city = new City(id, name, country);
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            return session.get(City.class, id);
+        } catch (Exception e) {
+            throw new EntityNotFoundException("city not found");
+        } finally {
+            if (session != null) {
+                session.close();
             }
-        } catch (SQLException e) {
-            printSQLException(e);
-            throw  new EntityNotFoundException("some problem");
         }
-        return city;
     }
 
     public List<City> findByAll() {
-        List<City> cities = new ArrayList<>();
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(SELECT_ALL_CITY)) {
-
-            while (resultSet.next()) {
-                String name = resultSet.getString("name");
-                String country = resultSet.getString("country");
-                cities.add(new City(null, name, country));
-            }
-        } catch (SQLException e) {
-            printSQLException(e);
-            throw  new EntityNotFoundException("some problem");
-        }
-        return cities;
-    }
-
-    private void printSQLException(SQLException ex) {
-        for (Throwable e: ex) {
-            if (e instanceof SQLException) {
-                e.printStackTrace(System.err);
-                System.err.println("SQLState: " + ((SQLException) e).getSQLState());
-                System.err.println("Error Code: " + ((SQLException) e).getErrorCode());
-                System.err.println("Message: " + e.getMessage());
-                Throwable t = ex.getCause();
-                while (t != null) {
-                    System.out.println("Cause: " + t);
-                    t = t.getCause();
-                }
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
+            return session.createQuery("from City", City.class).list();
+        } catch (Exception e) {
+            throw new EntityNotFoundException("city not found");
+        } finally {
+            if (session != null) {
+                session.close();
             }
         }
     }

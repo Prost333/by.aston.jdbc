@@ -1,5 +1,6 @@
 package by.aston.jdbc.service;
 
+import by.aston.jdbc.dto.DriveReq;
 import by.aston.jdbc.dto.DriveResp;
 import by.aston.jdbc.entity.Drive;
 
@@ -8,7 +9,7 @@ import java.util.List;
 
 public interface DriveService {
 
-    void save(Drive d) throws SQLException;
+    void save(DriveReq d) throws SQLException;
 
     void delete(Long id) throws SQLException;
 

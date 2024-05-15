@@ -2,6 +2,7 @@ package by.aston.jdbc.controller;
 
 import by.aston.jdbc.entity.City;
 import by.aston.jdbc.service.imp.CityServiceImp;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +13,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/cities")
+@AllArgsConstructor
 public class CityController {
-    private final CityServiceImp cityService;
+    private CityServiceImp cityService;
 
-    @Autowired
-    public CityController(CityServiceImp cityService) {
-        this.cityService = cityService;
-    }
+
 
     @PostMapping
     public ResponseEntity<Void> saveCity(@RequestBody City city) throws SQLException {
