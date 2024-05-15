@@ -15,25 +15,5 @@ import java.util.List;
 @RequestMapping("/api/users")
 @AllArgsConstructor
 public class UserController {
-    private  UserServiceImp userService;
 
-    @PostMapping
-    public void saveUser(@RequestBody UserReq user) throws SQLException {
-        userService.addUser(user);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) throws SQLException {
-        userService.deleteUser(id);
-    }
-
-    @GetMapping("/{id}")
-    public UserResp getUser(@PathVariable Long id) {
-        return userService.findById(id);
-    }
-
-    @GetMapping
-    public List<UserResp> getAllUsers() {
-        return userService.findAll();
-    }
 }

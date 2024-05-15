@@ -19,33 +19,6 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class RatesServiceImp implements RatesService {
-    private RatesDao ratesDao;
-    private RatesMapper ratesMapper;
-
-    @Override
-    public void save(RatesReq r) throws SQLException {
-        Rates rates=ratesMapper.toRequest(r);
-        ratesDao.addRates(rates);
-    }
-
-    @Override
-    public void delete(Long id) throws SQLException {
-        ratesDao.deleteRates(id);
-    }
-
-    @Override
-    public RatesResp findById(Long id) {
-
-        return ratesMapper.toResponse(ratesDao.findById(id));
-    }
-
-    @Override
-    public List<RatesResp> findAll() {
-        return ratesDao.findAll()
-                .stream()
-                .map(ratesMapper::toResponse)
-                .collect(Collectors.toList());
-    }
 
 
 }

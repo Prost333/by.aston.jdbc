@@ -12,22 +12,5 @@ import java.math.BigDecimal;
 @Builder
 public class DriveResp {
 
-    private BigDecimal km;
 
-    private  BigDecimal time;
-
-    private  BigDecimal surge;
-
-    private  String city;
-
-    private  String rate;
-
-    private BigDecimal paidTime;
-    private  Integer doorToDoor;
-
-    private  BigDecimal paidSubmission;
-
-    private  BigDecimal dopSum;
-
-    private  String userName;
 }

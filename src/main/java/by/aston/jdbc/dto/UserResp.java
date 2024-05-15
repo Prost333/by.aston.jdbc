@@ -10,7 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UserResp {
-    private Long id;
-    private  String name;
-    private  String surname;
+
 }

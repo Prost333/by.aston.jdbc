@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/by.aston.jdbc.main.iml" filepath="$PROJECT_DIR$/.idea/modules/by.aston.jdbc.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/by.aston.jdbc.test.iml" filepath="$PROJECT_DIR$/.idea/modules/by.aston.jdbc.test.iml" />
     </modules>
   </component>
 </project>

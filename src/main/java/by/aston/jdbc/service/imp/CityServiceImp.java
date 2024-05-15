@@ -12,26 +12,6 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class CityServiceImp implements CityService {
-    private CityDao cityDao;
 
-    @Override
-    public void save(City c) throws SQLException {
-        cityDao.addCity(c);
-    }
-
-    @Override
-    public void delete(City c) throws SQLException {
-        cityDao.deleteCity(c.getId());
-    }
-
-    @Override
-    public City findById(Long id) {
-        return cityDao.findById(id);
-    }
-
-    @Override
-    public List<City> findAll() {
-        return cityDao.findByAll();
-    }
 
 }

@@ -16,36 +16,5 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class UserServiceImp implements UserService {
-    private UserDao userDao;
-    private UserMapper userMapper;
 
-    @Override
-    public void addUser(UserReq user) throws SQLException {
-        User u=userMapper.toRequest(user);
-        userDao.addUser(u);
-    }
-
-    @Override
-    public void deleteUser(Long id) throws SQLException {
-        userDao.deleteUser(id);
-    }
-
-    @Override
-    public UserResp findById(Long id) {
-        return userMapper.toResponse(userDao.findById(id));
-    }
-
-
-    @Override
-    public List<UserResp> findAll() {
-        return userDao.findAll()
-                .stream()
-                .map(userMapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public String findUserNameById(Long id) {
-        return userDao.findUserNameById(id);
-    }
 }

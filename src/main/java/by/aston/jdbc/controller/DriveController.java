@@ -16,26 +16,5 @@ import java.util.List;
 @AllArgsConstructor
 public class DriveController {
 
-    private DriveServiceImp driveService;
 
-    @PostMapping
-    public void saveDrive(@RequestBody DriveReq drive) throws SQLException {
-        driveService.save(drive);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteDrive(@PathVariable Long id) throws SQLException {
-            driveService.delete(id);
-
-    }
-
-    @GetMapping("/{id}")
-    public DriveResp getDrive(@PathVariable Long id) {
-        return driveService.findById(id);
-    }
-
-    @GetMapping
-    public List<DriveResp> getAllDrives() {
-        return driveService.findAll();
-    }
 }

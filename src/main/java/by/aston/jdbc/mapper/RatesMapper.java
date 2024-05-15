@@ -11,28 +11,5 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface RatesMapper {
 
-    @Mapping(source = "city.name", target = "city")
-    RatesResp toResponse(Rates rates);
-
-    @Mapping(target = "id", ignore = true)
-    Rates toRequest(RatesReq ratesReq);
-
-    default String map(City city) {
-        return city.getName();
-    }
-    default String map(NameRates nameRates) {
-        return nameRates.getName();
-    }
-
-    default NameRates map(String name) {
-        NameRates nameRates = new NameRates();
-        nameRates.setName(name);
-        return nameRates;
-    }
-    default City mapString(String name) {
-        City city = new City();
-        city.setName(name);
-        return city;
-    }
 
 }

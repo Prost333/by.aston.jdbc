@@ -12,19 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Mapper(componentModel = "spring")
 public interface DriveMapper {
 
-    @Mapping(source = "user.name", target = "userName")
-    DriveResp toResponse(Drive drive);
 
-    @Mapping(target = "id", ignore = true)
-    Drive toRequest(DriveReq driveReq);
-    default String map(User user) {
-        return user.getName();
-    }
-
-    default User map(Long userId) {
-        User user = new User();
-        user.setId(userId);
-        return user;
-    }
 
 }

@@ -15,33 +15,5 @@ import java.util.List;
 @RequestMapping("/cities")
 @AllArgsConstructor
 public class CityController {
-    private CityServiceImp cityService;
 
-
-
-    @PostMapping
-    public ResponseEntity<Void> saveCity(@RequestBody City city) throws SQLException {
-        cityService.save(city);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCity(@PathVariable Long id) throws SQLException {
-        City city = cityService.findById(id);
-        if (city != null) {
-            cityService.delete(city);
-        }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<City> getCity(@PathVariable Long id) {
-
-        return ResponseEntity.ok(cityService.findById(id));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<City>> getAllCities() {
-        return ResponseEntity.ok(cityService.findAll());
-    }
 }

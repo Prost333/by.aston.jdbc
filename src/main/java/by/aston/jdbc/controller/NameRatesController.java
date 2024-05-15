@@ -13,28 +13,4 @@ import java.util.List;
 @RequestMapping("/api/namerates")
 @AllArgsConstructor
 public class NameRatesController {
-    private  NameRatesServiceImp nameRatesService;
-
-    @PostMapping
-    public void saveNameRates(@RequestBody NameRates nameRates) throws SQLException {
-        nameRatesService.save(nameRates);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteNameRates(@PathVariable Long id) throws SQLException {
-        NameRates nameRates = nameRatesService.findById(id);
-        if (nameRates != null) {
-            nameRatesService.delete(nameRates);
-        }
-    }
-
-    @GetMapping("/{id}")
-    public NameRates getNameRates(@PathVariable Long id) {
-        return nameRatesService.findById(id);
-    }
-
-    @GetMapping
-    public List<NameRates> getAllNameRates() {
-        return nameRatesService.findAll();
-    }
 }

@@ -12,26 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class LoggDriveAspect {
-    @Pointcut(value = "execution(* by.aston.jdbc.controller.DriveController.*(..))")
-    public void logClient() {
-    }
-
-    @Around("logClient()")
-    public Object logMethodExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
-        String methodName = joinPoint.getSignature().getName();
-        long startTime = System.currentTimeMillis();
-        log.info("Method " + methodName + " started");
-        Object result = joinPoint.proceed();
-        long endTime = System.currentTimeMillis();
-        long executionTime = endTime - startTime;
-        log.info("Method " + methodName + " executed in " + executionTime + " millisecond");
-        return result;
-    }
-
-    @AfterThrowing(value = "logClient()", throwing = "e")
-    public void afterUser (Throwable e){
-        log.error(e.getMessage(), e);
-    }
 
 
 }

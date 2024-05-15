@@ -12,25 +12,5 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class NameRatesServiceImp implements NameRatesService {
-    private NameRatesDao nameRatesDao;
 
-    @Override
-    public void save(NameRates n) throws SQLException {
-        nameRatesDao.addNameRates(n);
-    }
-
-    @Override
-    public void delete(NameRates n) throws SQLException {
-        nameRatesDao.deleteNameRates((long) Math.toIntExact(n.getId()));
-    }
-
-    @Override
-    public NameRates findById(Long id) {
-        return nameRatesDao.findById(id);
-    }
-
-    @Override
-    public List<NameRates> findAll() {
-        return nameRatesDao.findAll();
-    }
 }

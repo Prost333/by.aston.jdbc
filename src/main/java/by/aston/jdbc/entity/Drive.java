@@ -15,29 +15,5 @@ import java.math.BigDecimal;
 @Builder
 @Entity
 public class Drive {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private BigDecimal km;
-
-    private BigDecimal time;
-
-    private BigDecimal surge;
-
-    private String city;
-
-    private String rate;
-
-    private BigDecimal paidTime;
-    private Integer doorToDoor;
-
-    private BigDecimal paidSubmission;
-
-    private BigDecimal dopSum;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
 
 }

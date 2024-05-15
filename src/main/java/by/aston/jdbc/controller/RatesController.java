@@ -16,25 +16,5 @@ import java.util.List;
 @AllArgsConstructor
 public class RatesController {
 
-    private  RatesServiceImp ratesService;
 
-    @PostMapping
-    public void saveRates(@RequestBody RatesReq rates) throws SQLException {
-        ratesService.save(rates);
-    }
-
-    @DeleteMapping("/{id}")
-    public void deleteRates(@PathVariable Long id) throws SQLException {
-        ratesService.delete(id);
-    }
-
-    @GetMapping("/{id}")
-    public RatesResp getRates(@PathVariable Long id) {
-        return ratesService.findById(id);
-    }
-
-    @GetMapping
-    public List<RatesResp> getAllRates() {
-        return ratesService.findAll();
-    }
 }
